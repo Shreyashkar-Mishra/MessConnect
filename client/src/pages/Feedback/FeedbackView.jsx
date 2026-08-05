@@ -172,9 +172,9 @@ const FeedbackView = () => {
               {user?.role === 'student' ? "Rate today's meals and share your thoughts" : 'View all feedback submitted by students'}
             </p>
           </div>
-          {(user?.role === 'vendor' || user?.role === 'mess_committee' || user?.role === 'super_admin') && (
+          {(user?.role === 'vendor' || user?.role === 'mess_committee' || user?.role === 'college_admin' || user?.role === 'super_admin') && (
             <div className="flex flex-col sm:flex-row items-center gap-4">
-              {['mess_committee', 'super_admin'].includes(user?.role) && (
+              {['mess_committee', 'college_admin', 'super_admin'].includes(user?.role) && (
                 <div className="bg-white/20 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/30 truncate">
                   <select 
                     className="bg-transparent text-white font-bold outline-none cursor-pointer text-sm"
@@ -200,7 +200,7 @@ const FeedbackView = () => {
       </div>
 
       {/* Category Insight Grid (Vendors/Admins only) */}
-      {(user?.role === 'vendor' || user?.role === 'mess_committee' || user?.role === 'super_admin') && Object.keys(categoryAverages).length > 0 && (
+      {(user?.role === 'vendor' || user?.role === 'mess_committee' || user?.role === 'college_admin' || user?.role === 'super_admin') && Object.keys(categoryAverages).length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
            {Object.entries(categoryAverages).map(([cat, avg]) => (
                <div key={cat} className="bg-white/70 backdrop-blur-xl border border-white/60 rounded-[1.5rem] p-4 text-center hover:shadow-[0_8px_30px_rgba(245,158,11,0.06)] hover:-translate-y-1 transition-all duration-300">
@@ -304,9 +304,14 @@ const FeedbackView = () => {
           {feedbacks.map(fb => (
             <div key={fb._id} className="bg-white/70 backdrop-blur-xl border border-white/60 rounded-[1.5rem] p-6 hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] hover:-translate-y-1 transition-all duration-300">
               <div className="flex items-center justify-between mb-4">
-                <span className="text-xs text-gray-400 font-bold bg-gray-100 px-3 py-1 rounded-full">
-                  {new Date(fb.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric'})}
-                </span>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-xs text-gray-400 font-bold bg-gray-100 px-3 py-1 rounded-full">
+                    {new Date(fb.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric'})}
+                  </span>
+                  <span className="text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full">
+                    🏛️ {fb.mess?.name || messes.find(m => m._id === fb.mess)?.name || 'Mess'}
+                  </span>
+                </div>
                 {user?.role !== 'mess_committee' && (!fb.ratings || fb.ratings.length === 0) && <StarRating rating={fb.rating} readOnly />}
               </div>
 
@@ -325,7 +330,7 @@ const FeedbackView = () => {
                   "{fb.comment}"
                 </p>
               )}
-              {(user?.role === 'vendor' || user?.role === 'mess_committee' || user?.role === 'super_admin') && fb.user && (
+              {(user?.role === 'vendor' || user?.role === 'mess_committee' || user?.role === 'college_admin' || user?.role === 'super_admin') && fb.user && (
                 <div className="mt-4 pt-4 border-t border-gray-100 flex items-center gap-2">
                   <div className="w-6 h-6 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white text-xs font-bold">
                     {(fb.user?.name || 'S').charAt(0)}

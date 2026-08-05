@@ -18,17 +18,17 @@ const storage = multer.diskStorage({
 
 // Check file type
 function checkFileType(file, cb) {
-    // Allowed ext
-    const filetypes = /jpeg|jpg|png|gif|webp/;
+    // Allowed ext: images and pdfs
+    const filetypes = /jpeg|jpg|png|gif|webp|pdf/;
     // Check ext
     const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
     // Check mime
-    const mimetype = filetypes.test(file.mimetype);
+    const mimetype = filetypes.test(file.mimetype) || file.mimetype === 'application/pdf';
 
     if (mimetype && extname) {
         return cb(null, true);
     } else {
-        cb(new Error('Images Only!'));
+        cb(new Error('Images and PDFs Only!'));
     }
 }
 
@@ -40,5 +40,20 @@ const upload = multer({
         checkFileType(file, cb);
     }
 });
+
+export const vendorDocUpload = upload.fields([
+    { name: 'udyamCertificate', maxCount: 1 },
+    { name: 'fssaiLicense', maxCount: 1 },
+    { name: 'labourLicense', maxCount: 1 },
+    { name: 'gstCertificate', maxCount: 1 },
+    { name: 'panCard', maxCount: 1 },
+    { name: 'aadhaarCard', maxCount: 1 }
+]);
+
+export const staffDocUpload = upload.fields([
+    { name: 'identityProof', maxCount: 1 },
+    { name: 'policeVerification', maxCount: 1 },
+    { name: 'medicalReport', maxCount: 1 }
+]);
 
 export default upload;

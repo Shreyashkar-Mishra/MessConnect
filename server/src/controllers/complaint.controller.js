@@ -30,9 +30,11 @@ export const createComplaint = async (req, res) => {
             image = req.body.image;
         }
 
+        const complaintTitle = title ? title.trim() : (description ? description.trim().slice(0, 50) : category);
+
         const complaint = await Complaint.create({
             user_id: req.user._id,
-            title,
+            title: complaintTitle,
             description,
             category,
             mess,
@@ -74,8 +76,8 @@ export const getComplaints = async (req, res) => {
             queryFilter.collegeId = req.collegeId;
         }
 
-        // Mess Committee / Admins can filter via parameter
-        if (req.query.mess && ['mess_committee', 'super_admin'].includes(req.user.role)) {
+        // Students, Mess Committee, Admins can filter via parameter if provided
+        if (req.query.mess && req.user.role !== 'vendor') {
             queryFilter.mess = req.query.mess;
         }
 
@@ -89,30 +91,28 @@ export const getComplaints = async (req, res) => {
         let complaints;
 
         if (req.user.role === 'student') {
-            // Students can only see their own complaints, or other students' complaints that are assigned or vendor_completed.
-            queryFilter.$and.push({
-                $or: [
-                    { status: { $in: ['assigned', 'vendor_completed'] } },
-                    { user_id: req.user._id }
-                ]
-            });
-            complaints = await Complaint.find(queryFilter)
+            // Students should not see any rejected complaints
+            let studentFilter = { ...queryFilter, $and: [...queryFilter.$and, { status: { $ne: 'rejected' } }] };
+            complaints = await Complaint.find(studentFilter)
+                .populate('user_id', 'name email avatar trustMeter role')
                 .populate('assignedTo', 'name email')
-                .populate('user_id', 'name avatar')
+                .populate('mess', 'name')
                 .sort({ createdAt: -1 });
-        } else if (['mess_committee', 'super_admin'].includes(req.user.role)) {
-            // Committee and Admins see all complaints (matching queryFilter)
+        } else if (['mess_committee', 'college_admin', 'super_admin'].includes(req.user.role)) {
+            // Committee, College Admins, and Super Admins see all complaints in their college (matching queryFilter)
             complaints = await Complaint.find(queryFilter)
-                .populate('user_id', 'name email')
+                .populate('user_id', 'name email avatar trustMeter role')
                 .populate('assignedTo', 'name email')
+                .populate('mess', 'name')
                 .sort({ createdAt: -1 });
         } else if (req.user.role === 'vendor') {
             // Vendors see assigned or completed complaints assigned specifically to them
             queryFilter.status = { $in: ['assigned', 'vendor_completed'] };
             queryFilter.assignedTo = req.user._id;
             complaints = await Complaint.find(queryFilter)
-                .populate('user_id', 'name email')
+                .populate('user_id', 'name email avatar trustMeter role')
                 .populate('assignedTo', 'name email')
+                .populate('mess', 'name')
                 .sort({ createdAt: -1 });
         }
 

@@ -120,15 +120,28 @@ const signup = async (req, res) => {
             return res.status(400).json({ message: "Invalid or expired OTP" });
         }
 
-        const userExists = await User.findOne({ email: data.email });
+        const normalizedEmail = data.email.toLowerCase().trim();
+        const userExists = await User.findOne({ email: normalizedEmail });
 
         if (userExists) {
-            return res.status(400).json({ message: "User already exists" });
+            return res.status(400).json({ message: "An account with this email address already exists. Please sign in instead." });
         }
 
         if (data.messAssigned === "") {
             data.messAssigned = undefined;
         }
+        let vendorDocuments = undefined;
+        if (data.role === 'vendor' && req.files) {
+            vendorDocuments = {};
+            const fields = ['udyamCertificate', 'fssaiLicense', 'labourLicense', 'gstCertificate', 'panCard', 'aadhaarCard'];
+            fields.forEach(field => {
+                if (req.files[field] && req.files[field][0]) {
+                    const file = req.files[field][0];
+                    vendorDocuments[field] = `${req.protocol}://${req.get('host')}/uploads/${file.filename}`;
+                }
+            });
+        }
+
         // Create the user — only pick the fields we explicitly allow (never spread raw request body)
         const newUser = await User.create({
             name: data.name,
@@ -137,6 +150,7 @@ const signup = async (req, res) => {
             role: data.role,
             phoneNumber: data.phoneNumber,
             companyName: data.companyName,
+            vendorDocuments,
             messAssigned: data.messAssigned,
             collegeId: collegeId || undefined,
             isVerified: true,        // verified by OTP
@@ -260,7 +274,7 @@ const logout = (req, res) => {
 
 const sendOtp = async (req, res) => {
     try {
-        const { email, phoneNumber } = req.body;
+        const { email, phoneNumber, role, collegeSlug, messAssigned } = req.body;
 
         if (!email && !phoneNumber) {
             return res.status(400).json({ message: "Email or Phone Number is required" });
@@ -269,6 +283,45 @@ const sendOtp = async (req, res) => {
         // Phone-only OTP is not yet implemented (no SMS gateway)
         if (phoneNumber && !email) {
             return res.status(501).json({ message: "Phone-only OTP is not yet supported. Please provide an email address." });
+        }
+
+        // Check if user with this email already exists
+        if (email) {
+            const normalizedEmail = email.toLowerCase().trim();
+            const existingUser = await User.findOne({ email: normalizedEmail });
+            if (existingUser) {
+                return res.status(400).json({ message: "An account with this email address already exists. Please sign in instead." });
+            }
+        }
+
+        // Check if user with this phone number already exists
+        if (phoneNumber) {
+            const existingPhone = await User.findOne({ phoneNumber });
+            if (existingPhone) {
+                return res.status(400).json({ message: "An account with this phone number already exists." });
+            }
+        }
+
+        // If vendor registration, check if vendor for this mess already exists
+        if (role === 'vendor') {
+            if (!messAssigned) {
+                return res.status(400).json({ message: "Vendor must select an assigned mess." });
+            }
+            if (!collegeSlug) {
+                return res.status(400).json({ message: "College slug is required for vendor." });
+            }
+            const college = await College.findOne({ slug: collegeSlug });
+            if (!college) {
+                return res.status(400).json({ message: "Invalid college selected." });
+            }
+            const existingVendor = await User.findOne({
+                role: 'vendor',
+                collegeId: college._id,
+                messAssigned
+            });
+            if (existingVendor) {
+                return res.status(400).json({ message: "A vendor account already exists for this mess." });
+            }
         }
 
         // Generate 6 digit OTP
@@ -457,9 +510,10 @@ const acceptInvitation = async (req, res) => {
         }
 
         // 2. Check duplicate email or phone
-        const emailExists = await User.findOne({ email: invitation.email });
+        const normalizedEmail = invitation.email.toLowerCase().trim();
+        const emailExists = await User.findOne({ email: normalizedEmail });
         if (emailExists) {
-            return res.status(400).json({ status: 'error', message: 'A user with this email already exists' });
+            return res.status(400).json({ status: 'error', message: 'An account with this email address already exists. Please sign in instead.' });
         }
 
         const phoneExists = await User.findOne({ phoneNumber });

@@ -1,6 +1,6 @@
 import React from 'react';
 import useAuthStore from '../../store/useAuthStore';
-import { AlertTriangle, TrendingUp, Users, ShieldCheck, ArrowRight } from 'lucide-react';
+import { AlertTriangle, TrendingUp, Calendar, ShieldCheck, ArrowRight } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 
 const CommitteeDashboard = () => {
@@ -29,7 +29,7 @@ const CommitteeDashboard = () => {
           { to: '/complaints', label: 'Actions',  title: 'Complaints', Icon: AlertTriangle, color: 'text-red-500',   bg: 'from-red-100 to-rose-50',    hover: 'hover:text-red-500' },
           { to: '/feedback',   label: 'Metrics',  title: 'Feedback',   Icon: TrendingUp,   color: 'text-green-500', bg: 'from-green-100 to-emerald-50', hover: 'hover:text-green-500' },
           { to: '/notices',    label: 'Post',     title: 'Notices',    Icon: AlertTriangle, color: 'text-violet-500', bg: 'from-violet-100 to-purple-50',hover: 'hover:text-violet-500' },
-          { to: '/staff',      label: 'Directory', title: 'Staff',     Icon: Users,        color: 'text-amber-500', bg: 'from-amber-100 to-orange-50',  hover: 'hover:text-amber-500' },
+          { to: '/timetable',  label: 'Menu',     title: 'Timetable',  Icon: Calendar,     color: 'text-teal-500',   bg: 'from-teal-100 to-emerald-50', hover: 'hover:text-teal-500' },
         ].map((item) => {
           const { to, label, title, Icon, color, bg, hover } = item;
           return (

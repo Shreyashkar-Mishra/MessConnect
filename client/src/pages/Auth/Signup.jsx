@@ -14,6 +14,14 @@ const Signup = () => {
   const [otpStep, setOtpStep] = useState(false);
   const [colleges, setColleges] = useState([]);
   const [messes, setMesses] = useState([]);
+  const [vendorDocs, setVendorDocs] = useState({
+    udyamCertificate: null,
+    fssaiLicense: null,
+    labourLicense: null,
+    gstCertificate: null,
+    panCard: null,
+    aadhaarCard: null
+  });
 
   const [formData, setFormData] = useState({
     name: '',
@@ -90,14 +98,6 @@ const Signup = () => {
       toast.error("Password must contain at least one uppercase letter (A-Z).");
       return;
     }
-    if (!lowerCaseRegex.test(formData.password)) {
-      toast.error("Password must contain at least one lowercase letter (a-z).");
-      return;
-    }
-    if (!specialCharRegex.test(formData.password)) {
-      toast.error("Password must contain at least one special character (e.g. !@#$%^&*).");
-      return;
-    }
 
     if (formData.phoneNumber.length !== 10) {
       toast.error("Phone number must be exactly 10 digits long.");
@@ -122,9 +122,38 @@ const Signup = () => {
       }
     }
 
+    // Validate vendor specific fields before sending OTP
+    if (formData.role === 'vendor') {
+      if (!formData.collegeSlug) {
+        toast.error("Please select a college.");
+        return;
+      }
+      if (!formData.companyName.trim()) {
+        toast.error("Please enter your registered company name.");
+        return;
+      }
+      if (!formData.messAssigned) {
+        toast.error("Please select an assigned mess.");
+        return;
+      }
+      const docKeys = ['udyamCertificate', 'fssaiLicense', 'labourLicense', 'gstCertificate', 'panCard', 'aadhaarCard'];
+      for (const key of docKeys) {
+        if (!vendorDocs[key]) {
+          toast.error("Please upload all 6 required compliance documents.");
+          return;
+        }
+      }
+    }
+
     setSendingOtp(true);
     try {
-      const { data } = await api.post('/api/auth/send-otp', { email: formData.email, phoneNumber: formData.phoneNumber });
+      const { data } = await api.post('/api/auth/send-otp', {
+        email: formData.email,
+        phoneNumber: formData.phoneNumber,
+        role: formData.role,
+        collegeSlug: formData.collegeSlug,
+        messAssigned: formData.messAssigned
+      });
       if (data.status === 'success') {
         toast.success('OTP sent successfully!');
         setOtpStep(true);
@@ -145,10 +174,26 @@ const Signup = () => {
 
     setLoading(true);
     try {
-      // Send the entire form to standard signup which now requires 'otp'
-      const submitData = { ...formData };
+      let submitData = { ...formData };
+      let headers = {};
 
-      const { data } = await api.post('/api/auth/signup', submitData);
+      if (formData.role === 'vendor') {
+        const payload = new FormData();
+        Object.keys(formData).forEach(key => {
+          if (formData[key] !== undefined && formData[key] !== null) {
+            payload.append(key, formData[key]);
+          }
+        });
+        Object.keys(vendorDocs).forEach(docKey => {
+          if (vendorDocs[docKey]) {
+            payload.append(docKey, vendorDocs[docKey]);
+          }
+        });
+        submitData = payload;
+        headers = { 'Content-Type': 'multipart/form-data' };
+      }
+
+      const { data } = await api.post('/api/auth/signup', submitData, { headers });
       if (data.user || data.data) { // Depending on the actual response envelope
         const payload = data.data || data;
         setAuth(payload.user || data.user, payload.token || data.token || null);
@@ -276,8 +321,33 @@ const Signup = () => {
                       </select>
                     </div>
 
+                    <div className="pt-2 space-y-3">
+                      <p className="text-sm font-bold text-gray-900 border-b border-gray-200 pb-1">Required Verification Documents</p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {[
+                          { key: 'udyamCertificate', label: 'Udyam Certificate' },
+                          { key: 'fssaiLicense', label: 'FSSAI License' },
+                          { key: 'labourLicense', label: 'Labour License' },
+                          { key: 'gstCertificate', label: 'GST Registration Certificate' },
+                          { key: 'panCard', label: 'PAN Card' },
+                          { key: 'aadhaarCard', label: 'Aadhaar Card' }
+                        ].map(doc => (
+                          <div key={doc.key}>
+                            <label className="block text-xs font-semibold text-gray-700 mb-1">{doc.label} *</label>
+                            <input
+                              type="file"
+                              required
+                              accept="image/*,application/pdf"
+                              onChange={(e) => setVendorDocs({ ...vendorDocs, [doc.key]: e.target.files[0] })}
+                              className="w-full text-xs text-gray-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 cursor-pointer"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
                     <div className="p-3 bg-white/40 rounded-lg text-sm text-rose-800 font-bold border border-rose-200">
-                      Vendor accounts will require administrative review and verification before login is permitted.
+                      Vendor accounts will require administrative review and verification of all uploaded documents before login is permitted.
                     </div>
                   </div>
                 )}

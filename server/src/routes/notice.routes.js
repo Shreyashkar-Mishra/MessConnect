@@ -10,10 +10,10 @@ router.use(protect);
 
 router.route('/')
     .get(getNotices)
-    .post(authorizeRoles('mess_committee'), upload.single('image'), createNotice);
+    .post(authorizeRoles('mess_committee', 'college_admin'), upload.single('image'), createNotice);
 
 router.route('/:id')
-    .patch(authorizeRoles('mess_committee'), upload.single('image'), updateNotice)
-    .delete(authorizeRoles('mess_committee'), deleteNotice);
+    .patch(authorizeRoles('mess_committee', 'college_admin'), upload.single('image'), updateNotice)
+    .delete(authorizeRoles('mess_committee', 'college_admin'), deleteNotice);
 
 export default router;

@@ -1,6 +1,8 @@
 import User from '../models/user.model.js';
 import { sendEmail } from '../utils/sendEmail.js';
 
+import Staff from '../models/staff.model.js';
+
 export const getPendingUsers = async (req, res) => {
     try {
         // Only fetch pending users for the college_admin's specific college
@@ -8,7 +10,7 @@ export const getPendingUsers = async (req, res) => {
             role: { $in: ['vendor', 'mess_committee'] },
             isApprovedByAdmin: false,
             collegeId: req.collegeId
-        }).select('-password');
+        }).populate('messAssigned', 'name').select('-password');
         
         res.status(200).json({ status: 'success', data: pendingUsers });
     } catch (error) {
@@ -78,6 +80,55 @@ export const denyUser = async (req, res) => {
         await User.deleteOne({ _id: id });
 
         res.status(200).json({ status: 'success', message: 'User registration request denied and email sent' });
+    } catch (error) {
+        res.status(500).json({ status: 'error', message: error.message });
+    }
+};
+
+export const getPendingStaff = async (req, res) => {
+    try {
+        const pendingStaff = await Staff.find({
+            collegeId: req.collegeId,
+            isApprovedByAdmin: false
+        })
+        .populate('vendor', 'name email companyName')
+        .populate('mess', 'name');
+
+        res.status(200).json({ status: 'success', data: pendingStaff });
+    } catch (error) {
+        res.status(500).json({ status: 'error', message: error.message });
+    }
+};
+
+export const approveStaff = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const staff = await Staff.findOne({ _id: id, collegeId: req.collegeId });
+
+        if (!staff) {
+            return res.status(404).json({ status: 'error', message: 'Staff member not found or does not belong to your college' });
+        }
+
+        staff.isApprovedByAdmin = true;
+        await staff.save();
+
+        res.status(200).json({ status: 'success', data: staff });
+    } catch (error) {
+        res.status(500).json({ status: 'error', message: error.message });
+    }
+};
+
+export const denyStaff = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const staff = await Staff.findOne({ _id: id, collegeId: req.collegeId });
+
+        if (!staff) {
+            return res.status(404).json({ status: 'error', message: 'Staff member not found or does not belong to your college' });
+        }
+
+        await staff.deleteOne();
+        res.status(200).json({ status: 'success', message: 'Staff member registration rejected and removed' });
     } catch (error) {
         res.status(500).json({ status: 'error', message: error.message });
     }
