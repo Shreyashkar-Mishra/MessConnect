@@ -30,9 +30,11 @@ export const createComplaint = async (req, res) => {
             image = req.body.image;
         }
 
+        const complaintTitle = title ? title.trim() : (description ? description.trim().slice(0, 50) : category);
+
         const complaint = await Complaint.create({
             user_id: req.user._id,
-            title,
+            title: complaintTitle,
             description,
             category,
             mess,

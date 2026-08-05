@@ -10,7 +10,7 @@ const complaintSchema = new Schema(
 
     title: {
       type: String,
-      required: true
+      default: ''
     },
 
     description: {

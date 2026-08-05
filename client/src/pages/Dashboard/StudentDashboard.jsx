@@ -56,7 +56,7 @@ const StudentDashboard = () => {
         <div className="absolute -right-12 -top-12 w-48 h-48 sm:w-64 sm:h-64 bg-white/10 blur-3xl rounded-full group-hover:scale-150 transition-transform duration-700 pointer-events-none"></div>
         <div className="relative z-10">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-tight">
-            Welcome back,<br/>
+            Welcome,<br/>
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-100 to-white">{user?.name}</span>
           </h1>
           <p className="text-teal-100 font-medium mt-3 max-w-md text-sm sm:text-base">Manage your mess details, provide feedback, or check today's notices.</p>

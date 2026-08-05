@@ -55,8 +55,8 @@ const Login = () => {
             Institution Mess Management
           </div>
           <h1 className="text-5xl font-black text-white leading-tight mb-6">
-            Your mess,<br/>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 via-emerald-400 to-cyan-400">perfectly managed.</span>
+            We care<br/>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 via-emerald-400 to-cyan-400">for your food.</span>
           </h1>
           <p className="text-gray-400 text-lg leading-relaxed max-w-sm">
             From daily meal tracking to real-time complaint resolution

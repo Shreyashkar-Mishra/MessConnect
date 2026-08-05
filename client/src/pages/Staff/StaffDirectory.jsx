@@ -55,6 +55,12 @@ const StaffDirectory = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const cleanPhone = formData.phoneNumber.replace(/\D/g, '');
+    if (cleanPhone.length !== 10) {
+      toast.error('Staff phone number must be exactly 10 digits long.');
+      return;
+    }
+
     if (!staffDocs.identityProof || !staffDocs.policeVerification || !staffDocs.medicalReport) {
       toast.error('Please upload all 3 required verification documents for staff');
       return;
@@ -64,7 +70,7 @@ const StaffDirectory = () => {
     try {
       const payload = new FormData();
       payload.append('name', formData.name);
-      payload.append('phoneNumber', formData.phoneNumber);
+      payload.append('phoneNumber', cleanPhone);
       payload.append('role', formData.role);
       if (formData.joiningDate) payload.append('joiningDate', formData.joiningDate);
       if (formData.salary) payload.append('salary', formData.salary);
@@ -176,7 +182,7 @@ const StaffDirectory = () => {
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               <Input label="Full Name" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
-              <Input label="Phone Number" required value={formData.phoneNumber} onChange={e => setFormData({...formData, phoneNumber: e.target.value})} />
+              <Input label="Phone Number" required value={formData.phoneNumber} onChange={e => setFormData({...formData, phoneNumber: e.target.value.replace(/\D/g, '').slice(0, 10)})} />
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-2">Role</label>
                 <select className="w-full px-4 py-3 bg-white/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900/40" value={formData.role} onChange={e => setFormData({...formData, role: e.target.value})}>

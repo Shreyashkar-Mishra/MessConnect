@@ -1,17 +1,25 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import api from '../../api/axios';
 import toast from 'react-hot-toast';
-import { CheckCircle, XCircle, FileText, UserCheck, Users } from 'lucide-react';
+import { CheckCircle, XCircle, FileText, UserCheck, Users, Building2 } from 'lucide-react';
 import Button from '../../components/ui/Button';
 
 const UserApprovals = () => {
   const [activeTab, setActiveTab] = useState('accounts');
   const [users, setUsers] = useState([]);
   const [staff, setStaff] = useState([]);
+  const [messes, setMesses] = useState([]);
+  const [staffMessFilter, setStaffMessFilter] = useState('');
   const [loading, setLoading] = useState(true);
   const [denyingUser, setDenyingUser] = useState(null);
   const [rejectionReason, setRejectionReason] = useState('');
   const [denying, setDenying] = useState(false);
+
+  useEffect(() => {
+    api.get('/api/messes')
+      .then(({ data }) => setMesses(data.data || []))
+      .catch(err => console.error('Failed to load messes', err));
+  }, []);
 
   const fetchPending = useCallback(async () => {
     try {
@@ -35,6 +43,12 @@ const UserApprovals = () => {
     }, 0);
     return () => clearTimeout(timer);
   }, [fetchPending]);
+
+  const filteredStaff = staff.filter(member => {
+    if (!staffMessFilter) return true;
+    const messId = member.mess?._id || member.mess;
+    return messId === staffMessFilter;
+  });
 
   const handleApproveUser = async (id) => {
     try {
@@ -96,19 +110,37 @@ const UserApprovals = () => {
             <p className="text-sm text-gray-500 font-medium">Audit uploaded compliance documents and approve registrations</p>
           </div>
 
-          <div className="flex bg-gray-100 p-1.5 rounded-2xl border border-gray-200 self-start sm:self-auto">
-            <button
-              onClick={() => setActiveTab('accounts')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${activeTab === 'accounts' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}
-            >
-              <UserCheck size={16} /> Vendor & Committee ({users.length})
-            </button>
-            <button
-              onClick={() => setActiveTab('staff')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${activeTab === 'staff' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}
-            >
-              <Users size={16} /> Mess Staff Members ({staff.length})
-            </button>
+          <div className="flex flex-wrap items-center gap-3 self-start sm:self-auto">
+            {activeTab === 'staff' && (
+              <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-2xl border border-gray-200 shadow-sm">
+                <Building2 size={16} className="text-gray-500" />
+                <select
+                  value={staffMessFilter}
+                  onChange={(e) => setStaffMessFilter(e.target.value)}
+                  className="bg-transparent text-gray-900 font-bold outline-none cursor-pointer text-xs"
+                >
+                  <option value="">All Messes</option>
+                  {messes.map((m) => (
+                    <option key={m._id} value={m._id}>{m.name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            <div className="flex bg-gray-100 p-1.5 rounded-2xl border border-gray-200">
+              <button
+                onClick={() => setActiveTab('accounts')}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${activeTab === 'accounts' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}
+              >
+                <UserCheck size={16} /> Vendor & Committee ({users.length})
+              </button>
+              <button
+                onClick={() => setActiveTab('staff')}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${activeTab === 'staff' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}
+              >
+                <Users size={16} /> Mess Staff Members ({filteredStaff.length})
+              </button>
+            </div>
           </div>
         </div>
 
@@ -215,10 +247,10 @@ const UserApprovals = () => {
                 <tbody className="divide-y divide-gray-100">
                   {loading ? (
                     <tr><td colSpan="4" className="p-8 text-center text-gray-500">Loading staff verification queue...</td></tr>
-                  ) : staff.length === 0 ? (
-                    <tr><td colSpan="4" className="p-8 text-center text-gray-500">No pending staff members for approval.</td></tr>
+                  ) : filteredStaff.length === 0 ? (
+                    <tr><td colSpan="4" className="p-8 text-center text-gray-500">No pending staff members found for the selected mess.</td></tr>
                   ) : (
-                    staff.map((member) => (
+                    filteredStaff.map((member) => (
                       <tr key={member._id} className="hover:bg-white/60 transition-colors">
                         <td className="p-4">
                           <p className="font-bold text-gray-900">{member.name}</p>

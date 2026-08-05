@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import useAuthStore from '../../store/useAuthStore';
-import api from '../../api/axios';
+import api, { getImageUrl } from '../../api/axios';
 import toast from 'react-hot-toast';
 import ComplaintForm from './ComplaintForm';
 import Button from '../../components/ui/Button';
@@ -204,7 +204,6 @@ const ComplaintsList = () => {
               <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                 <div className="flex-1">
                   <div className="flex flex-wrap items-center gap-2 mb-3">
-                    <h3 className="text-lg font-bold text-gray-900">{complaint.title}</h3>
                     <StatusBadge status={complaint.status} />
                     {complaint.status === 'rejected' && complaint.rejectionReason && (
                       <span className="inline-flex items-center px-2 py-0.5 text-xs font-bold text-red-600 bg-red-50 rounded-full border border-red-200">
@@ -235,26 +234,34 @@ const ComplaintsList = () => {
                       </button>
                     </div>
                   </div>
-                  <p className="text-gray-600 text-sm leading-relaxed mb-4">{complaint.description}</p>
-                  {complaint.image && (
+                  <p className="text-gray-700 font-medium text-base leading-relaxed mb-4">{complaint.description}</p>
+                  {complaint.image && complaint.image.trim() !== '' && (
                     <div 
                       onClick={() => setSelectedPhoto({
-                        url: `http://localhost:5000/uploads/${complaint.image.split('\\').pop().split('/').pop()}`,
-                        title: complaint.title,
+                        url: getImageUrl(complaint.image),
+                        title: complaint.category.toUpperCase(),
                         description: complaint.description,
                         address: complaint.location?.address || (complaint.location?.latitude ? `${complaint.location.latitude.toFixed(4)}, ${complaint.location.longitude.toFixed(4)}` : null)
                       })}
-                      className="relative w-32 h-32 mt-3 group cursor-pointer overflow-hidden rounded-xl border border-gray-200 shadow-sm hover:border-teal-300 hover:shadow-md transition-all duration-200"
+                      className="relative w-36 h-36 mt-3 group cursor-pointer overflow-hidden rounded-2xl border border-gray-200/80 shadow-sm hover:border-teal-400 hover:shadow-lg transition-all duration-300 bg-gray-100"
                       title="Click to view full image"
                     >
                       <img
-                        src={`http://localhost:5000/uploads/${complaint.image.split('\\').pop().split('/').pop()}`}
-                        alt="Proof"
+                        src={getImageUrl(complaint.image)}
+                        alt="Complaint Proof"
                         className="h-full w-full object-cover group-hover:scale-105 transition-all duration-300"
+                        onError={(e) => {
+                          const container = e.target.closest('.group');
+                          if (container) container.style.display = 'none';
+                        }}
                       />
-                      <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-all duration-200" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-end p-2.5">
+                        <span className="text-[11px] font-bold text-white flex items-center gap-1">
+                          🔍 Click to Enlarge
+                        </span>
+                      </div>
                       {complaint.location?.latitude && (
-                        <div className="absolute bottom-1.5 left-1.5 px-1.5 py-0.5 bg-black/65 backdrop-blur-md rounded-md text-[9px] text-white flex items-center gap-0.5 font-bold">
+                        <div className="absolute top-2 left-2 px-2 py-0.5 bg-black/60 backdrop-blur-md rounded-lg text-[9px] text-white flex items-center gap-0.5 font-bold border border-white/20">
                           <MapPin size={8} className="text-teal-400" />
                           Geo-tagged
                         </div>

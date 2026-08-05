@@ -35,4 +35,11 @@ api.interceptors.response.use(
   }
 );
 
+export const getImageUrl = (imagePath) => {
+  if (!imagePath) return '';
+  if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) return imagePath;
+  const filename = imagePath.split('\\').pop().split('/').pop();
+  return `${BASE_URL}/uploads/${filename}`;
+};
+
 export default api;

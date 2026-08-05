@@ -13,8 +13,13 @@ export const addStaff = async (req, res) => {
             return res.status(403).json({ status: 'error', message: 'Only vendors can add staff' });
         }
 
+        const cleanPhone = phoneNumber ? phoneNumber.replace(/\D/g, '') : '';
+        if (cleanPhone.length !== 10) {
+            return res.status(400).json({ status: 'error', message: 'Staff phone number must be exactly 10 digits long' });
+        }
+
         // Check if phone number already exists
-        const existingStaff = await Staff.findOne({ phoneNumber });
+        const existingStaff = await Staff.findOne({ phoneNumber: cleanPhone });
         if (existingStaff) {
             return res.status(400).json({ status: 'error', message: 'Staff with this phone number already exists' });
         }
