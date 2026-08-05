@@ -155,7 +155,7 @@ export const getFeedback = async (req, res) => {
             listQueryFilter.comment = { $exists: true, $ne: '' };
         }
 
-        let query = Feedback.find(listQueryFilter);
+        let query = Feedback.find(listQueryFilter).populate('mess', 'name');
 
         if (req.user.role === 'mess_committee' || req.user.role === 'super_admin') {
             query = query.populate('user', 'name email');

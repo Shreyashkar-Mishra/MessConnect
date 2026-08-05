@@ -142,10 +142,15 @@ const StudentDashboard = () => {
             {trendingComplaints.map(complaint => (
               <div key={complaint._id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 bg-white border border-gray-100 rounded-2xl hover:shadow-md transition-all hover:border-gray-200">
                 <div>
-                  <div className="flex items-center gap-2 mb-1">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
                     <span className="px-2.5 py-1 bg-gray-100 text-gray-600 text-[10px] font-black uppercase tracking-wider rounded-lg">
                       {complaint.category}
                     </span>
+                    {complaint.mess?.name && (
+                      <span className="px-2.5 py-1 bg-indigo-50 text-indigo-700 border border-indigo-100 text-[10px] font-black uppercase tracking-wider rounded-lg">
+                        🏛️ {complaint.mess.name}
+                      </span>
+                    )}
                     <h3 className="font-bold text-gray-900 text-lg">{complaint.title}</h3>
                   </div>
                   <p className="text-gray-500 text-sm line-clamp-1">{complaint.description}</p>

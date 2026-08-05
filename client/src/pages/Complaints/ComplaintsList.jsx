@@ -210,8 +210,11 @@ const ComplaintsList = () => {
                         Reason: {complaint.rejectionReason.replace('_', ' ').toUpperCase()}
                       </span>
                     )}
-                    <span className="inline-flex items-center px-2 py-0.5 text-xs font-bold text-gray-500 bg-gray-100 rounded-full border border-gray-200">
+                    <span className="inline-flex items-center px-2 py-0.5 text-xs font-bold text-gray-500 bg-gray-100 rounded-full border border-gray-200 capitalize">
                       {complaint.category}
+                    </span>
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-bold text-indigo-700 bg-indigo-50 rounded-full border border-indigo-200">
+                      🏛️ {complaint.mess?.name || messes.find(m => m._id === complaint.mess)?.name || 'Mess'}
                     </span>
                     <div className="ml-auto">
                       <button

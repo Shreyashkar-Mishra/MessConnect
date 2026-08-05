@@ -304,9 +304,14 @@ const FeedbackView = () => {
           {feedbacks.map(fb => (
             <div key={fb._id} className="bg-white/70 backdrop-blur-xl border border-white/60 rounded-[1.5rem] p-6 hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] hover:-translate-y-1 transition-all duration-300">
               <div className="flex items-center justify-between mb-4">
-                <span className="text-xs text-gray-400 font-bold bg-gray-100 px-3 py-1 rounded-full">
-                  {new Date(fb.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric'})}
-                </span>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-xs text-gray-400 font-bold bg-gray-100 px-3 py-1 rounded-full">
+                    {new Date(fb.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric'})}
+                  </span>
+                  <span className="text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full">
+                    🏛️ {fb.mess?.name || messes.find(m => m._id === fb.mess)?.name || 'Mess'}
+                  </span>
+                </div>
                 {user?.role !== 'mess_committee' && (!fb.ratings || fb.ratings.length === 0) && <StarRating rating={fb.rating} readOnly />}
               </div>
 

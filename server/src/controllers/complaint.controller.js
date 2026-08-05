@@ -99,12 +99,14 @@ export const getComplaints = async (req, res) => {
             complaints = await Complaint.find(queryFilter)
                 .populate('assignedTo', 'name email')
                 .populate('user_id', 'name avatar')
+                .populate('mess', 'name')
                 .sort({ createdAt: -1 });
         } else if (['mess_committee', 'super_admin'].includes(req.user.role)) {
             // Committee and Admins see all complaints (matching queryFilter)
             complaints = await Complaint.find(queryFilter)
                 .populate('user_id', 'name email')
                 .populate('assignedTo', 'name email')
+                .populate('mess', 'name')
                 .sort({ createdAt: -1 });
         } else if (req.user.role === 'vendor') {
             // Vendors see assigned or completed complaints assigned specifically to them
@@ -113,6 +115,7 @@ export const getComplaints = async (req, res) => {
             complaints = await Complaint.find(queryFilter)
                 .populate('user_id', 'name email')
                 .populate('assignedTo', 'name email')
+                .populate('mess', 'name')
                 .sort({ createdAt: -1 });
         }
 
