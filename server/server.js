@@ -20,6 +20,10 @@ dotenv.config();
 // Initialize Express app
 const app = express();
 
+// Trust the first proxy hop (required when deployed behind Render / any reverse proxy)
+// Without this, express-rate-limit cannot read the X-Forwarded-For header and throws a ValidationError
+app.set('trust proxy', 1);
+
 // MIDDLEWARE
 
 // CORS Configuration

@@ -256,9 +256,10 @@ export const inviteAdmin = async (req, res) => {
         const validated = inviteAdminSchema.parse(req.body);
         
         // 1. Check if user already exists
-        const userExists = await User.findOne({ email: validated.email });
+        const normalizedEmail = validated.email.toLowerCase().trim();
+        const userExists = await User.findOne({ email: normalizedEmail });
         if (userExists) {
-            return res.status(400).json({ status: 'error', message: 'A user with this email already exists' });
+            return res.status(400).json({ status: 'error', message: 'An account with this email address already exists. Please sign in instead.' });
         }
 
         // 2. Check if college exists

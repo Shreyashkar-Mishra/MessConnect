@@ -8,17 +8,30 @@ export const addStaff = async (req, res) => {
     try {
         const { name, phoneNumber, role, salary } = req.body;
 
-        // Ensure user is a vendor
+        // Ensure user is an approved vendor
         if (req.user.role !== 'vendor') {
             return res.status(403).json({ status: 'error', message: 'Only vendors can add staff' });
         }
 
-        // Check if phone number already exists for this vendor
-        // Note: The schema has an index for unique phone number overall,
-        // but if it's meant per vendor we check it explicitly.
-        const existingStaff = await Staff.findOne({ phoneNumber });
+        const cleanPhone = phoneNumber ? phoneNumber.replace(/\D/g, '') : '';
+        if (cleanPhone.length !== 10) {
+            return res.status(400).json({ status: 'error', message: 'Staff phone number must be exactly 10 digits long' });
+        }
+
+        // Check if phone number already exists
+        const existingStaff = await Staff.findOne({ phoneNumber: cleanPhone });
         if (existingStaff) {
             return res.status(400).json({ status: 'error', message: 'Staff with this phone number already exists' });
+        }
+
+        let documents = {};
+        if (req.files) {
+            ['identityProof', 'policeVerification', 'medicalReport'].forEach(field => {
+                if (req.files[field] && req.files[field][0]) {
+                    const file = req.files[field][0];
+                    documents[field] = `${req.protocol}://${req.get('host')}/uploads/${file.filename}`;
+                }
+            });
         }
 
         const staff = await Staff.create({
@@ -28,7 +41,9 @@ export const addStaff = async (req, res) => {
             name,
             phoneNumber,
             role,
-            salary
+            salary: salary ? Number(salary) : undefined,
+            documents,
+            isApprovedByAdmin: false // Pending college admin approval
         });
 
         res.status(201).json({
@@ -36,7 +51,6 @@ export const addStaff = async (req, res) => {
             data: staff
         });
     } catch (error) {
-        // Handle Mongoose duplicate key error specifically
         if (error.code === 11000) {
             return res.status(400).json({ status: 'error', message: 'Staff with this phone number already exists' });
         }
@@ -46,30 +60,34 @@ export const addStaff = async (req, res) => {
 
 // @desc    Get all staff members
 // @route   GET /api/staff
-// @access  Private (Vendor, Mess Committee)
+// @access  Private (Vendor, Mess Committee, College Admin)
 export const getStaff = async (req, res) => {
     try {
-        const allowedRoles = ['vendor', 'mess_committee'];
+        const allowedRoles = ['vendor', 'mess_committee', 'college_admin'];
         if (!allowedRoles.includes(req.user.role)) {
             return res.status(403).json({ status: 'error', message: 'Not authorized to view staff' });
         }
 
         let query = { collegeId: req.collegeId };
+
         if (req.user.role === 'vendor') {
             query.vendor = req.user._id;
-        } else if (req.query.mess && req.user.role === 'mess_committee') {
-            // Validate the requested mess belongs to this college
-            const messDoc = await Mess.findOne({ _id: req.query.mess, collegeId: req.collegeId });
-            if (!messDoc) {
-                return res.status(403).json({ status: 'error', message: 'Mess does not belong to your college' });
+        } else {
+            // mess_committee or college_admin
+            if (req.query.vendor) {
+                query.vendor = req.query.vendor;
+            } else if (req.query.mess) {
+                const User = (await import('../models/user.model.js')).default;
+                const vendorsInMess = await User.find({ role: 'vendor', messAssigned: req.query.mess, collegeId: req.collegeId }).select('_id');
+                const vendorIds = vendorsInMess.map(v => v._id);
+                query.vendor = { $in: vendorIds };
             }
-            const User = (await import('../models/user.model.js')).default;
-            const vendorsInMess = await User.find({ role: 'vendor', messAssigned: req.query.mess, collegeId: req.collegeId }).select('_id');
-            const vendorIds = vendorsInMess.map(v => v._id);
-            query.vendor = { $in: vendorIds };
         }
 
-        const staffList = await Staff.find(query).populate('vendor', 'name email messAssigned');
+        const staffList = await Staff.find(query)
+            .populate('vendor', 'name email companyName messAssigned')
+            .populate('mess', 'name')
+            .sort({ createdAt: -1 });
 
         res.status(200).json({
             status: 'success',

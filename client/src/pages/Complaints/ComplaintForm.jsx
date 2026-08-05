@@ -233,13 +233,6 @@ const ComplaintForm = ({ onComplaintAdded }) => {
     <div className="bg-white p-6 rounded-xl border border-gray-200 mb-6">
       <h3 className="text-lg font-medium text-gray-900 mb-4">Submit New Complaint</h3>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <Input 
-          label="Title" 
-          required 
-          value={formData.title} 
-          onChange={(e) => setFormData({ ...formData, title: e.target.value })} 
-        />
-        
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
           <textarea

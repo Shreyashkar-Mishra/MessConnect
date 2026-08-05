@@ -38,6 +38,15 @@ const userSchema = new Schema(
     // Company name is typically only applicable when role is 'vendor'
     companyName: String,
 
+    vendorDocuments: {
+      udyamCertificate: String,
+      fssaiLicense: String,
+      labourLicense: String,
+      gstCertificate: String,
+      panCard: String,
+      aadhaarCard: String
+    },
+
     messAssigned: {
       type: Schema.Types.ObjectId,
       ref: 'Mess'

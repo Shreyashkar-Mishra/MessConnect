@@ -19,7 +19,7 @@ const otpSchema = new Schema(
     createdAt: {
       type: Date,
       default: Date.now,
-      expires: 300 // Document automatically deleted after 5 minutes (300 seconds)
+      index: { expires: 300 } // TTL index — MongoDB auto-deletes document after 5 minutes
     }
   }
 );
