@@ -25,6 +25,7 @@ const getLinks = (role) => {
       { name: 'Complaints', path: '/complaints', icon: MessageSquare },
       { name: 'Feedback', path: '/feedback', icon: Star },
       { name: 'Notices', path: '/notices', icon: Bell },
+      { name: 'Staff', path: '/staff', icon: Users },
       { name: 'Timetable', path: '/timetable', icon: Calendar }
     );
   } else if (role === 'mess_committee') {
@@ -32,12 +33,14 @@ const getLinks = (role) => {
       { name: 'Complaints', path: '/complaints', icon: MessageSquare },
       { name: 'Feedback', path: '/feedback', icon: Star },
       { name: 'Notices', path: '/notices', icon: Bell },
+      { name: 'Staff', path: '/staff', icon: Users },
       { name: 'Timetable', path: '/timetable', icon: Calendar }
     );
   } else if (role === 'college_admin') {
     base.push(
       { name: 'User Approvals', path: '/approvals', icon: ShieldCheck },
       { name: 'Manage Messes', path: '/messes', icon: School },
+      { name: 'Staff', path: '/staff', icon: Users },
       { name: 'Complaints', path: '/complaints', icon: MessageSquare },
       { name: 'Notices', path: '/notices', icon: Bell },
       { name: 'Feedback', path: '/feedback', icon: Star }

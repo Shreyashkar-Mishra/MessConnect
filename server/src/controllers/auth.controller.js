@@ -130,6 +130,18 @@ const signup = async (req, res) => {
         if (data.messAssigned === "") {
             data.messAssigned = undefined;
         }
+        let vendorDocuments = undefined;
+        if (data.role === 'vendor' && req.files) {
+            vendorDocuments = {};
+            const fields = ['udyamCertificate', 'fssaiLicense', 'labourLicense', 'gstCertificate', 'panCard', 'aadhaarCard'];
+            fields.forEach(field => {
+                if (req.files[field] && req.files[field][0]) {
+                    const file = req.files[field][0];
+                    vendorDocuments[field] = `${req.protocol}://${req.get('host')}/uploads/${file.filename}`;
+                }
+            });
+        }
+
         // Create the user — only pick the fields we explicitly allow (never spread raw request body)
         const newUser = await User.create({
             name: data.name,
@@ -138,6 +150,7 @@ const signup = async (req, res) => {
             role: data.role,
             phoneNumber: data.phoneNumber,
             companyName: data.companyName,
+            vendorDocuments,
             messAssigned: data.messAssigned,
             collegeId: collegeId || undefined,
             isVerified: true,        // verified by OTP

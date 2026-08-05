@@ -34,6 +34,17 @@ const staffSchema = new Schema(
       type: Number
     },
 
+    documents: {
+      identityProof: String,
+      policeVerification: String,
+      medicalReport: String
+    },
+
+    isApprovedByAdmin: {
+      type: Boolean,
+      default: false
+    },
+
     isActive: {
       type: Boolean,
       default: true

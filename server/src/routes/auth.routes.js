@@ -3,6 +3,8 @@ import rateLimit from 'express-rate-limit';
 import { signup, login, logout, sendOtp, getMe, resetPassword, getActiveColleges, getMesses, getInvitationByToken, acceptInvitation } from '../controllers/auth.controller.js';
 import { protect } from '../middleware/auth.middleware.js';
 
+import { vendorDocUpload } from '../middleware/upload.middleware.js';
+
 const router = express.Router();
 
 // Rate limiters — prevent brute force on auth endpoints
@@ -23,7 +25,7 @@ const otpLimiter = rateLimit({
 });
 
 // Auth routes
-router.post('/signup', authLimiter, signup);
+router.post('/signup', authLimiter, vendorDocUpload, signup);
 router.post('/login', authLimiter, login);
 router.post('/logout', protect, logout);    // protect ensures only authenticated users can logout
 router.post('/send-otp', otpLimiter, sendOtp);
