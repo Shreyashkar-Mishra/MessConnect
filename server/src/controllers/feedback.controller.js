@@ -110,8 +110,8 @@ export const getFeedback = async (req, res) => {
             aggregateFilter.user = req.user._id;
         }
 
-        // mess_committee may filter further by a specific mess (already scoped to college above)
-        if (req.query.mess && req.user.role === 'mess_committee') {
+        // mess_committee / college_admin / super_admin may filter further by a specific mess (already scoped to college above)
+        if (req.query.mess && ['mess_committee', 'college_admin', 'super_admin'].includes(req.user.role)) {
             // Validate the requested mess belongs to this college before trusting the param
             const messDoc = await Mess.findOne({ _id: req.query.mess, collegeId: req.collegeId });
             if (!messDoc) {
@@ -157,7 +157,7 @@ export const getFeedback = async (req, res) => {
 
         let query = Feedback.find(listQueryFilter).populate('mess', 'name');
 
-        if (req.user.role === 'mess_committee' || req.user.role === 'super_admin') {
+        if (['mess_committee', 'college_admin', 'super_admin'].includes(req.user.role)) {
             query = query.populate('user', 'name email');
         } else if (req.user.role === 'vendor') {
             query = query.select('-user');

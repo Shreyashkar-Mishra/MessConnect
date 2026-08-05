@@ -126,6 +126,7 @@ const ComplaintsList = () => {
     student: 'from-blue-600 via-indigo-600 to-violet-600',
     mess_committee: 'from-amber-600 via-orange-500 to-amber-600',
     vendor: 'from-rose-600 via-pink-600 to-rose-600',
+    college_admin: 'from-indigo-600 via-violet-600 to-purple-600',
     admin: 'from-indigo-600 via-violet-600 to-purple-600',
     super_admin: 'from-violet-700 via-purple-600 to-indigo-700',
   };
@@ -151,7 +152,7 @@ const ComplaintsList = () => {
             </p>
           </div>
           <div className="hidden sm:flex items-center gap-3">
-            {['mess_committee', 'super_admin'].includes(user?.role) && (
+            {['student', 'mess_committee', 'college_admin', 'super_admin'].includes(user?.role) && (
               <div className="bg-white/20 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/30 truncate">
                 <select 
                   className="bg-transparent text-white font-bold outline-none cursor-pointer text-sm"
