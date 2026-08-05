@@ -80,7 +80,7 @@ const NoticeBoard = () => {
             <h1 className="text-3xl font-black mb-1">Notice Board</h1>
             <p className="text-white/70 font-medium">Stay updated with important institutional announcements</p>
           </div>
-          {user?.role === 'mess_committee' && (
+          {['mess_committee', 'college_admin'].includes(user?.role) && (
             <button
               onClick={() => setShowForm(!showForm)}
               className="flex items-center gap-2 px-5 py-3 bg-white/20 hover:bg-white/30 border border-white/30 rounded-2xl text-white font-bold text-sm backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5"
@@ -92,7 +92,7 @@ const NoticeBoard = () => {
       </div>
 
       {/* Create Notice Form */}
-      {showForm && user?.role === 'mess_committee' && (
+      {showForm && ['mess_committee', 'college_admin'].includes(user?.role) && (
         <div className="bg-white/70 backdrop-blur-xl border border-white/60 rounded-[2rem] p-8 shadow-[0_8px_30px_rgba(0,0,0,0.06)] animate-fade-in">
           <h3 className="text-xl font-black text-gray-900 mb-6">New Announcement</h3>
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -116,10 +116,6 @@ const NoticeBoard = () => {
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-2">Description</label>
               <textarea className="w-full px-4 py-3 bg-white/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900/40" rows="4" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} />
-            </div>
-            <div className="flex items-center gap-3">
-              <input type="checkbox" id="isActive" checked={formData.isActive} onChange={e => setFormData({...formData, isActive: e.target.checked})} className="w-4 h-4 accent-amber-500" />
-              <label htmlFor="isActive" className="text-sm font-medium text-gray-700">Publish immediately</label>
             </div>
             <Button type="submit" variant="committee" disabled={formLoading}>
               {formLoading ? 'Publishing...' : '→ Publish Notice'}
@@ -160,7 +156,7 @@ const NoticeBoard = () => {
                       </span>
                       {!notice.isActive && <span className="px-2.5 py-0.5 text-xs font-bold rounded-full bg-gray-100 text-gray-500">INACTIVE</span>}
                     </div>
-                    {user?.role === 'mess_committee' && (
+                    {['mess_committee', 'college_admin'].includes(user?.role) && (
                       <button onClick={() => handleDelete(notice._id)} className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all duration-200">
                         <Trash2 size={16} />
                       </button>

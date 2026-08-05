@@ -260,7 +260,7 @@ const logout = (req, res) => {
 
 const sendOtp = async (req, res) => {
     try {
-        const { email, phoneNumber } = req.body;
+        const { email, phoneNumber, role, collegeSlug, messAssigned } = req.body;
 
         if (!email && !phoneNumber) {
             return res.status(400).json({ message: "Email or Phone Number is required" });
@@ -269,6 +269,44 @@ const sendOtp = async (req, res) => {
         // Phone-only OTP is not yet implemented (no SMS gateway)
         if (phoneNumber && !email) {
             return res.status(501).json({ message: "Phone-only OTP is not yet supported. Please provide an email address." });
+        }
+
+        // Check if user with this email already exists
+        if (email) {
+            const existingUser = await User.findOne({ email: email.toLowerCase() });
+            if (existingUser) {
+                return res.status(400).json({ message: "An account with this email address already exists." });
+            }
+        }
+
+        // Check if user with this phone number already exists
+        if (phoneNumber) {
+            const existingPhone = await User.findOne({ phoneNumber });
+            if (existingPhone) {
+                return res.status(400).json({ message: "An account with this phone number already exists." });
+            }
+        }
+
+        // If vendor registration, check if vendor for this mess already exists
+        if (role === 'vendor') {
+            if (!messAssigned) {
+                return res.status(400).json({ message: "Vendor must select an assigned mess." });
+            }
+            if (!collegeSlug) {
+                return res.status(400).json({ message: "College slug is required for vendor." });
+            }
+            const college = await College.findOne({ slug: collegeSlug });
+            if (!college) {
+                return res.status(400).json({ message: "Invalid college selected." });
+            }
+            const existingVendor = await User.findOne({
+                role: 'vendor',
+                collegeId: college._id,
+                messAssigned
+            });
+            if (existingVendor) {
+                return res.status(400).json({ message: "A vendor account already exists for this mess." });
+            }
         }
 
         // Generate 6 digit OTP

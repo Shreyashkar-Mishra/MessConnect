@@ -122,9 +122,31 @@ const Signup = () => {
       }
     }
 
+    // Validate vendor specific fields before sending OTP
+    if (formData.role === 'vendor') {
+      if (!formData.collegeSlug) {
+        toast.error("Please select a college.");
+        return;
+      }
+      if (!formData.companyName.trim()) {
+        toast.error("Please enter your registered company name.");
+        return;
+      }
+      if (!formData.messAssigned) {
+        toast.error("Please select an assigned mess.");
+        return;
+      }
+    }
+
     setSendingOtp(true);
     try {
-      const { data } = await api.post('/api/auth/send-otp', { email: formData.email, phoneNumber: formData.phoneNumber });
+      const { data } = await api.post('/api/auth/send-otp', {
+        email: formData.email,
+        phoneNumber: formData.phoneNumber,
+        role: formData.role,
+        collegeSlug: formData.collegeSlug,
+        messAssigned: formData.messAssigned
+      });
       if (data.status === 'success') {
         toast.success('OTP sent successfully!');
         setOtpStep(true);

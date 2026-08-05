@@ -7,8 +7,8 @@ export const createNotice = async (req, res) => {
     try {
         const { title, description, targetRole, isActive, expiresAt } = req.body;
 
-        if (req.user.role !== 'mess_committee') {
-            return res.status(403).json({ status: 'error', message: 'Only mess committee can create notices' });
+        if (!['mess_committee', 'college_admin'].includes(req.user.role)) {
+            return res.status(403).json({ status: 'error', message: 'Only mess committee or college admin can create notices' });
         }
 
         // Handle image upload logic similar to complaint.controller.js
@@ -63,7 +63,9 @@ export const getNotices = async (req, res) => {
         // Enforce college isolation for all non-super-admin users
         if (userRole !== 'super_admin') {
             query.collegeId = req.collegeId;
-            query.targetRole = { $in: ['all', userRole] };
+            if (!['mess_committee', 'college_admin'].includes(userRole)) {
+                query.targetRole = { $in: ['all', userRole] };
+            }
         }
 
         const notices = await Notice.find(query)
@@ -85,8 +87,8 @@ export const getNotices = async (req, res) => {
 // @access  Private (Mess Committee only)
 export const updateNotice = async (req, res) => {
     try {
-        if (req.user.role !== 'mess_committee') {
-            return res.status(403).json({ status: 'error', message: 'Only mess committee can update notices' });
+        if (!['mess_committee', 'college_admin'].includes(req.user.role)) {
+            return res.status(403).json({ status: 'error', message: 'Only mess committee or college admin can update notices' });
         }
 
         // Scope to own college to prevent cross-college mutations
@@ -134,8 +136,8 @@ export const updateNotice = async (req, res) => {
 // @access  Private (Mess Committee only)
 export const deleteNotice = async (req, res) => {
     try {
-        if (req.user.role !== 'mess_committee') {
-            return res.status(403).json({ status: 'error', message: 'Only mess committee can delete notices' });
+        if (!['mess_committee', 'college_admin'].includes(req.user.role)) {
+            return res.status(403).json({ status: 'error', message: 'Only mess committee or college admin can delete notices' });
         }
 
         // Scope to own college to prevent cross-college deletion
