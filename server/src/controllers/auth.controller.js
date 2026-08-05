@@ -120,10 +120,11 @@ const signup = async (req, res) => {
             return res.status(400).json({ message: "Invalid or expired OTP" });
         }
 
-        const userExists = await User.findOne({ email: data.email });
+        const normalizedEmail = data.email.toLowerCase().trim();
+        const userExists = await User.findOne({ email: normalizedEmail });
 
         if (userExists) {
-            return res.status(400).json({ message: "User already exists" });
+            return res.status(400).json({ message: "An account with this email address already exists. Please sign in instead." });
         }
 
         if (data.messAssigned === "") {
@@ -273,9 +274,10 @@ const sendOtp = async (req, res) => {
 
         // Check if user with this email already exists
         if (email) {
-            const existingUser = await User.findOne({ email: email.toLowerCase() });
+            const normalizedEmail = email.toLowerCase().trim();
+            const existingUser = await User.findOne({ email: normalizedEmail });
             if (existingUser) {
-                return res.status(400).json({ message: "An account with this email address already exists." });
+                return res.status(400).json({ message: "An account with this email address already exists. Please sign in instead." });
             }
         }
 
@@ -495,9 +497,10 @@ const acceptInvitation = async (req, res) => {
         }
 
         // 2. Check duplicate email or phone
-        const emailExists = await User.findOne({ email: invitation.email });
+        const normalizedEmail = invitation.email.toLowerCase().trim();
+        const emailExists = await User.findOne({ email: normalizedEmail });
         if (emailExists) {
-            return res.status(400).json({ status: 'error', message: 'A user with this email already exists' });
+            return res.status(400).json({ status: 'error', message: 'An account with this email address already exists. Please sign in instead.' });
         }
 
         const phoneExists = await User.findOne({ phoneNumber });
