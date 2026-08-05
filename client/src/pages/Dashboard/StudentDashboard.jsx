@@ -55,9 +55,6 @@ const StudentDashboard = () => {
       <div className="relative overflow-hidden rounded-2xl sm:rounded-[2rem] p-6 sm:p-10 bg-gradient-to-br from-teal-500 via-emerald-500 to-teal-700 text-white shadow-[0_8px_30px_rgba(20,184,166,0.2)] group">
         <div className="absolute -right-12 -top-12 w-48 h-48 sm:w-64 sm:h-64 bg-white/10 blur-3xl rounded-full group-hover:scale-150 transition-transform duration-700 pointer-events-none"></div>
         <div className="relative z-10">
-          <p className="inline-flex items-center px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-xs font-bold tracking-widest uppercase mb-3 border border-white/20">
-            {user?.messType === 'card' ? 'Card System Active' : 'Per-Meal System Active'}
-          </p>
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-tight">
             Welcome back,<br/>
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-100 to-white">{user?.name}</span>
