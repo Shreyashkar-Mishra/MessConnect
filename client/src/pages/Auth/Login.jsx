@@ -45,7 +45,7 @@ const Login = () => {
         
         {/* Logo */}
         <div className="relative z-10 flex items-center gap-3">
-          <img src="/pccoe-logo-new.webp" alt="MessConnect Logo" className="w-12 h-12 flex-shrink-0 object-contain drop-shadow-lg" />
+          <img src="/darkbg.png" alt="MessConnect Logo" className="w-12 h-12 flex-shrink-0 object-cover rounded-xl shadow-lg ring-1 ring-white/20" />
           <span className="text-white font-bold text-xl tracking-tight">MessConnect</span>
         </div>
         
@@ -78,7 +78,7 @@ const Login = () => {
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 relative" style={{background: 'radial-gradient(at 20% 80%, hsla(189,100%,60%,0.08) 0px, transparent 60%), radial-gradient(at 80% 20%, hsla(28,100%,74%,0.1) 0px, transparent 60%), #fafafa'}}>
         {/* Mobile logo */}
         <div className="absolute top-8 left-8 lg:hidden flex items-center gap-2">
-          <img src="/pccoe-logo-new.webp" alt="MessConnect Logo" className="w-9 h-9 flex-shrink-0 object-contain drop-shadow-sm" />
+          <img src="/lightbg.png" alt="MessConnect Logo" className="w-9 h-9 flex-shrink-0 object-cover rounded-lg shadow-sm ring-1 ring-gray-200" />
           <span className="text-gray-900 font-bold">MessConnect</span>
         </div>
         
