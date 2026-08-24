@@ -45,7 +45,7 @@ const Login = () => {
         
         {/* Logo */}
         <div className="relative z-10 flex items-center gap-3">
-          <img src="/darkbg.png" alt="MessConnect Logo" className="w-12 h-12 flex-shrink-0 object-cover rounded-xl shadow-lg ring-1 ring-white/20" />
+          <img src="/lightbg.png" alt="MessConnect Logo" className="w-12 h-12 flex-shrink-0 object-cover rounded-xl shadow-lg ring-1 ring-white/20" />
           <span className="text-white font-bold text-xl tracking-tight">MessConnect</span>
         </div>
         
