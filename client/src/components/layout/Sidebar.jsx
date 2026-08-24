@@ -86,7 +86,7 @@ const SidebarContent = ({ user, role, links, onLinkClick }) => {
       {/* Logo */}
       <div className="p-6 pb-4">
         <div className="flex items-center gap-3 mb-5">
-          <img src="/lightbg.png" alt="MessConnect Logo" className="w-10 h-10 flex-shrink-0 object-cover rounded-xl shadow-md ring-1 ring-gray-200" />
+          <img src="/darkbg.png" alt="MessConnect Logo" className="w-10 h-10 flex-shrink-0 object-cover rounded-xl shadow-md ring-1 ring-gray-200" />
           <h1 className="text-xl font-black text-gray-900 tracking-tight">MessConnect</h1>
         </div>
         {role && (
